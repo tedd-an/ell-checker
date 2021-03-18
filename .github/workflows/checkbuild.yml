@@ -1,0 +1,29 @@
+name: CheckBuild
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  checkbuild:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Setup build environment
+      run: |
+        echo "Start setup script"
+        ./setup_env.sh
+
+    - name: Clone target repository
+      run: |
+        git clone --depth=1 https://git.kernel.org/pub/scm/libs/ell/ell.git
+
+    - name: Check Build
+      run: |
+        echo "Start script"
+        ./ell-checker.py -v --src=./ell --head-sha-file=./head.sha
+      env:
+        EMAIL_TOKEN: ${{ secrets.EMAIL_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
